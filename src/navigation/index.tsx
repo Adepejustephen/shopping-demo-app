@@ -1,44 +1,60 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStaticNavigation, StaticParamList } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform } from 'react-native';
-
+import { Platform, Text, View } from 'react-native';
 import { Explore } from './screens/Explore';
 import { Home } from './screens/Home';
 import { NotFound } from './screens/NotFound';
-
+import { ProductListScreen } from './screens/ProductListScreen';
+import { ProductDetailScreen } from './screens/ProductDetailScreen';
+import { ShoppingCartScreen } from './screens/ShoppingCartScreen';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
+import { useCart } from '@/context/CartContext';
+
+// Simple white background component
+function WhiteBackground() {
+  return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
+}
 
 const HomeTabs = createBottomTabNavigator({
   screens: {
     Home: {
-      screen: Home,
+      screen: ProductListScreen,
       options: {
         headerShown: false,
-        tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+        title: 'Products',
+        tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color="#007BFF" />,
       },
     },
-    Explore: {
-      screen: Explore,
-      options: {
-        headerShown: false,
-        tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+    // Explore: {
+    //   screen: Explore,
+    //   options: {
+    //     headerShown: false,
+    //     tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color="#007BFF" />,
+    //   },
+    // },
+    Cart: {
+      screen: ShoppingCartScreen,
+      options: ({ navigation }) => {
+        const { getCartCount } = useCart();
+        const count = getCartCount();
+        return {
+          headerShown: false,
+          title: 'Cart',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color="#007BFF" />,
+          tabBarBadge: count > 0 ? count : undefined,
+        };
       },
     },
   },
   screenOptions: {
     headerShown: false,
     tabBarButton: HapticTab,
-    tabBarBackground: TabBarBackground,
-    tabBarStyle: Platform.select({
-      ios: {
-        // Use a transparent background on iOS to show the blur effect
-        possition: 'absolute',
-      },
-      default: {},
-    }),
+    tabBarBackground: WhiteBackground,
+    tabBarStyle: {
+      backgroundColor: '#FFFFFF',
+    },
   },
 });
 
@@ -50,10 +66,24 @@ const RootStack = createNativeStackNavigator({
         headerShown: false,
       },
     },
+    ProductDetail: {
+      screen: ProductDetailScreen,
+      options: {
+        title: 'Product Details',
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+        },
+        headerTintColor: '#000000',
+      },
+    },
     NotFound: {
       screen: NotFound,
       options: {
         title: '404',
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+        },
+        headerTintColor: '#000000',
       },
       linking: {
         path: '*',
